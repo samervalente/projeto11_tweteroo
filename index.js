@@ -27,6 +27,16 @@ server.post('/sign-up', (req, res) => {
     
 })
 
+server.post('/tweets', (req, res) => {
+    tweets.push({
+        username:req.body.username,
+        tweet: req.body.tweet
+    })
+    userTweet = [...userTweet, {username: req.body.username, tweet:req.body.tweet, avatar:avatarF}]
+    res.send(tweets)
+})
+
+
 
 
 server.listen(5000)
