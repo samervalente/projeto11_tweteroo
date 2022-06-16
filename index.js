@@ -36,7 +36,10 @@ server.post('/tweets', (req, res) => {
     res.send(tweets)
 })
 
-
+server.get('/tweets', (req, res) => {
+  
+    res.send(userTweet)
+})
 
 
 server.listen(5000)
