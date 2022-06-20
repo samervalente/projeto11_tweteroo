@@ -48,7 +48,7 @@ server.get("/tweets", (req, res) => {
     }
   }
 
-  res.send(tweetsPage);
+  res.send(tweetsPage.reverse());
 });
 
 server.get("/tweets/:username", (req, res) => {
