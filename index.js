@@ -1,45 +1,63 @@
-import express from 'express'
-import cors from 'cors'
+import express from "express";
+import cors from "cors";
+import { isImage } from "./utils/verify.js";
 
-const server = express()
-const users = []
-const tweets = []
-let userTweet = []
-let avatarF = ""
+const server = express();
+const users = [];
+const tweets = [];
+let userImage = "";
 
+server.use([cors(), express.json()]);
 
-server.use(express.json())
-server.use(cors())
+server.post("/sign-up", (req, res) => {
+  const { username, avatar } = req.body;
 
+  if (!isImage(avatar) || username.length < 2) {
+    return res.status(400).send("Dados inválidos");
+  }
 
-server.get('/sign-up', (req, res) => {
-    res.send(users)
-})
+  users.push({ username, avatar });
+  userImage = avatar;
+  res.status(200).send("Ok");
+});
 
-server.post('/sign-up', (req, res) => {
-  users.push({
-    username:req.body.username,
-    avatar:req.body.avatar
-  })
+server.post("/tweets", (req, res) => {
+  const tweet = req.body.tweet;
+  const username = req.headers.user;
 
-  avatarF = req.body.avatar
-  res.send(users)
-    
-})
+  if (!tweet || !username) {
+    return res.status(400).send("Todos os campos são obrigatórios!");
+  }
 
-server.post('/tweets', (req, res) => {
-    tweets.push({
-        username:req.body.username,
-        tweet: req.body.tweet
-    })
-    userTweet = [...userTweet, {username: req.body.username, tweet:req.body.tweet, avatar:avatarF}]
-    res.send(tweets)
-})
+  tweets.push({
+    username,
+    tweet,
+    avatar: userImage,
+  });
 
-server.get('/tweets', (req, res) => {
-  
-    res.send(userTweet)
-})
+  res.status(201).send(tweets);
+});
 
+server.get("/tweets", (req, res) => {
+  let page = Number(req.query.page);
+  let tweetsPage = [];
 
-server.listen(5000)
+  for (let i = page * 10 - 10; i < page * 10; i++) {
+    if (tweets[i]) {
+      tweetsPage.push(tweets[i]);
+    }
+  }
+
+  res.send(tweetsPage);
+});
+
+server.get("/tweets/:username", (req, res) => {
+  const name = req.params.username;
+
+  const JustTweetsWithName = tweets.filter(
+    (object) => object.username === name
+  );
+  res.send(JustTweetsWithName);
+});
+
+server.listen(5000);
